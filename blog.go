@@ -6,16 +6,18 @@ import (
 		//"labix.org/v2/mgo/bson"
 		"net/http"
 		"text/template"
+		"time"
 )
 
 type Post struct {
 		Content string
+		Date  time.Time
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	//array of Posts
 	entries := []Post{}
-	err := posts.Find(nil).Limit(12).All(&entries)
+	err := posts.Find(nil).Limit(12).Sort("-date").All(&entries)
 	if err != nil {
 		fmt.Fprintf(w, "err: %s!", err)
 		http.NotFound(w, r)
@@ -32,7 +34,7 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST"  && (r.FormValue("pw") == "pw") {
 		//fmt.Fprintf(w, "%s", r.FormValue("content"))
 		content := r.FormValue("content")
-		newPost := &Post{Content:content}
+		newPost := &Post{Content:content, Date: time.Now()}
 		//fmt.Fprintf(w, "%s", newPost)
 
 		//insert new Post
